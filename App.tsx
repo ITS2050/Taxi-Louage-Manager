@@ -72,13 +72,13 @@ const LoginScreen: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            <input placeholder="Prénom" required className="w-full p-3.5 bg-slate-50 border-none rounded-2xl text-sm" value={formData.firstName} onChange={e => setFormData({ ...formData, firstName: e.target.value })} />
-            <input placeholder="Nom" required className="w-full p-3.5 bg-slate-50 border-none rounded-2xl text-sm" value={formData.lastName} onChange={e => setFormData({ ...formData, lastName: e.target.value })} />
+            <input placeholder="Prénom" required className="w-full p-3.5 bg-slate-50 border-none rounded-2xl text-sm text-slate-900 placeholder:text-slate-400" value={formData.firstName} onChange={e => setFormData({ ...formData, firstName: e.target.value })} />
+            <input placeholder="Nom" required className="w-full p-3.5 bg-slate-50 border-none rounded-2xl text-sm text-slate-900 placeholder:text-slate-400" value={formData.lastName} onChange={e => setFormData({ ...formData, lastName: e.target.value })} />
           </div>
 
-          <input placeholder="Téléphone" type="tel" required className="w-full p-3.5 bg-slate-50 border-none rounded-2xl text-sm" value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} />
-          <input placeholder="Matricule (ex: 123 TU 4567)" pattern="^(\d{1,3} TU \d{1,5}|[Aa]dmin)$" required className="w-full p-3.5 bg-slate-50 border-none rounded-2xl text-sm font-mono uppercase" value={formData.plate} onChange={e => setFormData({ ...formData, plate: e.target.value })} />
-          <input placeholder="PIN (4 chiffres)" type="password" maxLength={4} pattern="^\d{4}$" required className="w-full p-3.5 bg-slate-50 border-none rounded-2xl text-center text-xl font-black tracking-widest" value={formData.pin} onChange={e => setFormData({ ...formData, pin: e.target.value })} />
+          <input placeholder="Téléphone" type="tel" required className="w-full p-3.5 bg-slate-50 border-none rounded-2xl text-sm text-slate-900 placeholder:text-slate-400" value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} />
+          <input placeholder="Matricule (ex: 123 TU 4567)" pattern="^(\d{1,3} TU \d{1,5}|[Aa]dmin)$" required className="w-full p-3.5 bg-slate-50 border-none rounded-2xl text-sm font-mono uppercase text-slate-900 placeholder:text-slate-400" value={formData.plate} onChange={e => setFormData({ ...formData, plate: e.target.value })} />
+          <input placeholder="PIN (4 chiffres)" type="password" maxLength={4} pattern="^\d{4}$" required className="w-full p-3.5 bg-slate-50 border-none rounded-2xl text-center text-xl font-black tracking-widest text-slate-900 placeholder:text-slate-400" value={formData.pin} onChange={e => setFormData({ ...formData, pin: e.target.value })} />
 
           <button type="submit" className="w-full py-4.5 bg-slate-900 text-white font-black rounded-[1.5rem] shadow-xl hover:opacity-90 active:scale-95 transition-all">
             ACTIVER L'ESSAI 30J
@@ -346,7 +346,7 @@ const MainContent: React.FC = () => {
             </div>
             {canEnterCode && (
               <div className="flex gap-1.5">
-                <input type="text" maxLength={8} placeholder="Code" className="w-16 p-2 rounded-xl bg-white/10 text-xs text-center border border-white/20 uppercase" value={activationCode} onChange={e => setActivationCode(e.target.value)} />
+                <input type="text" maxLength={8} placeholder="Code" className="w-16 p-2 rounded-xl bg-white/10 text-xs text-center border border-white/20 uppercase text-white" value={activationCode} onChange={e => setActivationCode(e.target.value)} />
                 <button onClick={async () => (await activateLicense(activationCode)) ? alert('OK') : alert('NO')} className="bg-yellow-400 text-slate-900 px-3 py-2 rounded-xl text-[10px] font-black uppercase">Activer</button>
               </div>
             )}
