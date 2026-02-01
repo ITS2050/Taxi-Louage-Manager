@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { db } from '../db/database';
-import { Settings, Droplets, Disc, Compass, Lightbulb, Plus, Camera, X } from 'lucide-center';
 import { Settings as SettingsIcon, Droplets as DropletsIcon, Disc as DiscIcon, Compass as CompassIcon, Lightbulb as LightbulbIcon, Plus as PlusIcon, Camera as CameraIcon, X as XIcon } from 'lucide-react';
 
 const CATEGORIES = [
