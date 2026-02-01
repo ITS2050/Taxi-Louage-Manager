@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { LicenseProvider, useLicense } from './context/LicenseContext';
-import { db, RevenueRecord, ExpenseRecord } from './db/database';
+import { db, type RevenueRecord, type ExpenseRecord } from './db/database';
 import MaintenanceForm from './components/MaintenanceForm';
 import RevenueForm from './components/RevenueForm';
 import AdminModal from './components/AdminModal';
