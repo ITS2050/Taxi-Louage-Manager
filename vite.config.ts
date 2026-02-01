@@ -3,13 +3,12 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
-  // Base relative impérative pour GitHub Pages et AI Studio Preview
+  // Crucial pour GitHub Pages : assure que les assets sont cherchés au bon endroit
   base: './',
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
-    cssCodeSplit: false, // Force un seul fichier CSS pour éviter les erreurs de chargement
-    sourcemap: false,
+    cssCodeSplit: false, // Regroupe le CSS pour éviter les erreurs de chargement réseau
     minify: 'terser',
     rollupOptions: {
       input: {
