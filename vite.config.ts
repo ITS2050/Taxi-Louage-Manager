@@ -3,22 +3,13 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
-  // Crucial : base relative pour GitHub Pages (sous-répertoire) et AI Studio
-  base: './',
+  base: './', // Chemin relatif obligatoire pour GitHub Pages
   build: {
     outDir: 'dist',
-    assetsDir: 'assets',
-    cssCodeSplit: false,
-    minify: 'terser',
-    rollupOptions: {
-      input: {
-        main: './index.html',
-      },
-    },
+    emptyOutDir: true,
+    sourcemap: false
   },
   server: {
-    port: 3000,
-    host: true,
-    strictPort: true
+    host: true
   }
 });
