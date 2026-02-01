@@ -1,10 +1,13 @@
-
+import './index.css';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 
-// Enregistrement du Service Worker
-if ('serviceWorker' in navigator) {
+// Protection contre l'erreur 'Cannot read properties of undefined (reading PROD)'
+const isProd = typeof import.meta.env !== 'undefined' && import.meta.env.PROD;
+
+// Enregistrement du Service Worker uniquement en production
+if ('serviceWorker' in navigator && isProd) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./sw.js').then(registration => {
       console.log('SW registered: ', registration);
