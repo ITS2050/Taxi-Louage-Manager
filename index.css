@@ -4,10 +4,16 @@
 
 @layer base {
   body {
-    @apply bg-slate-50 text-slate-900 antialiased;
+    background-color: #f8fafc;
+    color: #0f172a;
     -webkit-tap-highlight-color: transparent;
+    overflow-x: hidden;
   }
 }
+
+/* Utilitaires spécifiques pour le mobile */
+.safe-top { padding-top: env(safe-area-inset-top); }
+.safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
 
 .animate-shake {
   animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
