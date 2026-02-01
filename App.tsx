@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { LicenseProvider, useLicense } from './context/LicenseContext';
 import { db, RevenueRecord, ExpenseRecord } from './db/database';
@@ -8,18 +7,15 @@ import { AdminModal } from './components/AdminModal';
 import { 
   LayoutDashboard, 
   Wrench, 
-  BarChart3, 
   Settings as SettingsIcon, 
   Plus, 
   AlertCircle,
   Smartphone,
   Share2,
-  LogOut,
   ChevronRight,
   TrendingUp,
   Droplet,
   ArrowUpRight,
-  ArrowDownRight,
   X,
   CreditCard,
   History
@@ -286,10 +282,52 @@ const MaintenancePage: React.FC = () => {
   );
 };
 
+const SettingsPage: React.FC = () => {
+  const { user } = useLicense();
+  const [showQR, setShowQR] = useState(false);
+
+  return (
+    <div className="space-y-6">
+      <h1 className="text-3xl font-black text-slate-900 tracking-tighter italic">Réglages</h1>
+      <div className="bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden">
+        <div className="p-6 bg-slate-50 flex items-center gap-4">
+          <div className="w-16 h-16 bg-slate-900 rounded-2xl flex items-center justify-center text-white font-black text-2xl uppercase">{user?.firstName?.[0]}</div>
+          <div>
+            <h3 className="font-black text-slate-900">{user?.firstName} {user?.lastName}</h3>
+            <p className="text-slate-400 font-mono text-sm tracking-tighter">{user?.plate}</p>
+          </div>
+        </div>
+        <div className="divide-y divide-slate-50">
+          <button onClick={() => { if(navigator.share) navigator.share({title: 'Taxi Manager', url: window.location.href}); }} className="w-full p-5 flex items-center justify-between hover:bg-slate-50 text-slate-700">
+            <div className="flex items-center gap-4">
+              <Share2 size={20} className="text-blue-600" />
+              <span className="font-bold">Partager l'application</span>
+            </div>
+            <ChevronRight size={18} className="text-slate-300" />
+          </button>
+          <button onClick={() => setShowQR(!showQR)} className="w-full p-5 flex items-center justify-between hover:bg-slate-50 text-slate-700">
+            <div className="flex items-center gap-4">
+              <Smartphone size={20} className="text-indigo-600" />
+              <span className="font-bold">Afficher QR Code</span>
+            </div>
+            <ChevronRight size={18} className="text-slate-300" />
+          </button>
+        </div>
+      </div>
+      {showQR && (
+        <div className="bg-white p-8 rounded-[2rem] border shadow-2xl flex flex-col items-center animate-in zoom-in">
+          <QRCode value={window.location.href} size={180} />
+          <p className="mt-4 text-[10px] text-slate-400 font-black uppercase text-center">Scannez pour installer</p>
+        </div>
+      )}
+    </div>
+  );
+};
+
 // --- MAIN WRAPPER ---
 
 const MainContent: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'maintenance' | 'stats' | 'settings'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'maintenance' | 'settings'>('dashboard');
   const [showRevenueForm, setShowRevenueForm] = useState(false);
   const { isTrialExpired, daysRemaining, showWarning, activateLicense, canEnterCode } = useLicense();
   const [activationCode, setActivationCode] = useState('');
@@ -359,48 +397,6 @@ const MainContent: React.FC = () => {
       </footer>
 
       {showAdmin && <AdminModal onClose={() => setShowAdmin(false)} />}
-    </div>
-  );
-};
-
-const SettingsPage: React.FC = () => {
-  const { user } = useLicense();
-  const [showQR, setShowQR] = useState(false);
-
-  return (
-    <div className="space-y-6">
-      <h1 className="text-3xl font-black text-slate-900 tracking-tighter italic">Réglages</h1>
-      <div className="bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden">
-        <div className="p-6 bg-slate-50 flex items-center gap-4">
-          <div className="w-16 h-16 bg-slate-900 rounded-2xl flex items-center justify-center text-white font-black text-2xl uppercase">{user?.firstName?.[0]}</div>
-          <div>
-            <h3 className="font-black text-slate-900">{user?.firstName} {user?.lastName}</h3>
-            <p className="text-slate-400 font-mono text-sm tracking-tighter">{user?.plate}</p>
-          </div>
-        </div>
-        <div className="divide-y divide-slate-50">
-          <button onClick={() => { if(navigator.share) navigator.share({title: 'Taxi Manager', url: window.location.href}); }} className="w-full p-5 flex items-center justify-between hover:bg-slate-50 text-slate-700">
-            <div className="flex items-center gap-4">
-              <Share2 size={20} className="text-blue-600" />
-              <span className="font-bold">Partager l'application</span>
-            </div>
-            <ChevronRight size={18} className="text-slate-300" />
-          </button>
-          <button onClick={() => setShowQR(!showQR)} className="w-full p-5 flex items-center justify-between hover:bg-slate-50 text-slate-700">
-            <div className="flex items-center gap-4">
-              <Smartphone size={20} className="text-indigo-600" />
-              <span className="font-bold">Afficher QR Code</span>
-            </div>
-            <ChevronRight size={18} className="text-slate-300" />
-          </button>
-        </div>
-      </div>
-      {showQR && (
-        <div className="bg-white p-8 rounded-[2rem] border shadow-2xl flex flex-col items-center animate-in zoom-in">
-          <QRCode value={window.location.href} size={180} />
-          <p className="mt-4 text-[10px] text-slate-400 font-black uppercase text-center">Scannez pour installer</p>
-        </div>
-      )}
     </div>
   );
 };
