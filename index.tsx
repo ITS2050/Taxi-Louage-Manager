@@ -3,18 +3,25 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 
-// Détection d'environnement robuste pour éviter le crash en preview
-// @ts-ignore - Vite injecte import.meta.env au moment du build
-const isProd = !!(import.meta.env?.PROD);
+// Gestionnaire d'erreurs global pour le débogage visuel si nécessaire
+window.addEventListener('error', (e) => {
+  console.error('Global Error:', e.error);
+});
 
-// Service Worker avec chemin relatif - Ne s'active qu'en production réelle
-if ('serviceWorker' in navigator && isProd) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js')
-      .then(reg => console.log('SW Registered', reg.scope))
-      .catch(err => console.error('SW Registration Failed', err));
-  });
-}
+// Enregistrement du Service Worker uniquement si supporté et pas en mode dev local strict
+// On utilise un try/catch silencieux pour ne jamais bloquer l'app
+const registerSW = async () => {
+  if ('serviceWorker' in navigator) {
+    try {
+      const reg = await navigator.serviceWorker.register('./sw.js');
+      console.log('SW registered', reg);
+    } catch (e) {
+      console.log('SW registration failed (expected in some previews)', e);
+    }
+  }
+};
+
+registerSW();
 
 const rootElement = document.getElementById('root');
 if (rootElement) {
