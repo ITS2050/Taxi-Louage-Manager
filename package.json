@@ -1,8 +1,7 @@
-
 {
   "name": "taxi-louage-manager",
   "private": true,
-  "version": "1.0.6",
+  "version": "1.0.8",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -22,6 +21,7 @@
     "@types/react-dom": "^19.0.0",
     "vite": "^6.0.0",
     "typescript": "^5.0.0",
-    "@vitejs/plugin-react": "^4.0.0"
+    "@vitejs/plugin-react": "^4.0.0",
+    "terser": "^5.31.0"
   }
 }
