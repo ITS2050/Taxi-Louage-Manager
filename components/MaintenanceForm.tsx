@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import { db } from '../db/database';
-import { Settings, Droplets, Disc, Compass, Lightbulb, Plus, Camera, X } from 'lucide-react';
+import { Settings, Droplets, Disc, Compass, Lightbulb, Plus, Camera, X } from 'lucide-center';
+import { Settings as SettingsIcon, Droplets as DropletsIcon, Disc as DiscIcon, Compass as CompassIcon, Lightbulb as LightbulbIcon, Plus as PlusIcon, Camera as CameraIcon, X as XIcon } from 'lucide-react';
 
 const CATEGORIES = [
-  { id: 'Moteur', label: 'Moteur', icon: Settings },
-  { id: 'Refroidissement', label: 'Refroidissement', icon: Droplets },
-  { id: 'Freinage', label: 'Freinage', icon: Disc },
-  { id: 'Direction', label: 'Direction', icon: Compass },
-  { id: 'Eclairage', label: 'Éclairage', icon: Lightbulb },
-  { id: 'Autre', label: 'Autre', icon: Plus },
+  { id: 'Moteur', label: 'Moteur', icon: SettingsIcon },
+  { id: 'Refroidissement', label: 'Refroidissement', icon: DropletsIcon },
+  { id: 'Freinage', label: 'Freinage', icon: DiscIcon },
+  { id: 'Direction', label: 'Direction', icon: CompassIcon },
+  { id: 'Eclairage', label: 'Éclairage', icon: LightbulbIcon },
+  { id: 'Autre', label: 'Autre', icon: PlusIcon },
 ];
 
 const MaintenanceForm = ({ onSuccess }: { onSuccess: () => void }) => {
@@ -131,7 +132,7 @@ const MaintenanceForm = ({ onSuccess }: { onSuccess: () => void }) => {
 
       <div className="flex items-center gap-4">
         <label className="flex-1 cursor-pointer flex items-center justify-center gap-2 p-3 border-2 border-dashed border-slate-300 rounded-lg text-slate-500 hover:border-blue-400 hover:text-blue-500 transition-colors">
-          <Camera size={20} />
+          <CameraIcon size={20} />
           <span className="text-sm">Ajouter une photo</span>
           <input type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
         </label>
@@ -143,7 +144,7 @@ const MaintenanceForm = ({ onSuccess }: { onSuccess: () => void }) => {
               onClick={() => { setPhoto(null); setPreview(null); }}
               className="absolute top-0 right-0 p-0.5 bg-red-500 text-white rounded-bl-lg"
             >
-              <X size={12} />
+              <XIcon size={12} />
             </button>
           </div>
         )}
