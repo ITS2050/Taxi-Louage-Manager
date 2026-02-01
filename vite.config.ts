@@ -3,11 +3,11 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
+  // Le base doit correspondre EXACTEMENT au nom de votre dépôt GitHub
   base: '/Taxi-Louage-Manager/', 
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
-    sourcemap: false,
     minify: 'terser',
     rollupOptions: {
       input: {
@@ -15,6 +15,4 @@ export default defineConfig({
       },
     },
   },
-  // Fix: Removed the server block containing 'historyApiFallback' as it is not a valid Vite option.
-  // Vite's development server handles SPA routing (falling back to index.html) automatically.
 });
