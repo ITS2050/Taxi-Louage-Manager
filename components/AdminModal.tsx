@@ -1,9 +1,8 @@
-
 import React, { useState } from 'react';
 import { X, Copy, Check } from 'lucide-react';
 import { getLicenseCode } from '../utils/format';
 
-export const AdminModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
+const AdminModal = ({ onClose }: { onClose: () => void }) => {
   const [plate, setPlate] = useState('');
   const [generatedCode, setGeneratedCode] = useState<{ code: string, days: number } | null>(null);
   const [copied, setCopied] = useState(false);
@@ -79,3 +78,5 @@ export const AdminModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     </div>
   );
 };
+
+export default AdminModal;
