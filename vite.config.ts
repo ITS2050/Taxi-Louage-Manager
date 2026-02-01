@@ -3,8 +3,8 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
-  // Le base doit correspondre EXACTEMENT au nom de votre dépôt GitHub
-  base: '/Taxi-Louage-Manager/', 
+  // Utiliser './' permet une compatibilité universelle pour les chemins relatifs
+  base: './', 
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
@@ -15,4 +15,7 @@ export default defineConfig({
       },
     },
   },
+  server: {
+    port: 3000
+  }
 });
