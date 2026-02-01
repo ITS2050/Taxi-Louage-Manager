@@ -54,11 +54,11 @@ const RevenueForm = ({ onSuccess }: { onSuccess: () => void }) => {
       <div className="grid grid-cols-2 gap-3">
         <div>
           <label className="block text-[10px] uppercase font-bold text-slate-400 mb-1">Date</label>
-          <input type="date" required className="w-full p-2 bg-slate-50 border rounded-lg text-sm" value={formData.date} onChange={e => setFormData({...formData, date: e.target.value})} />
+          <input type="date" required className="w-full p-2 bg-slate-50 border rounded-lg text-sm text-slate-900" value={formData.date} onChange={e => setFormData({...formData, date: e.target.value})} />
         </div>
         <div>
           <label className="block text-[10px] uppercase font-bold text-slate-400 mb-1">Shift</label>
-          <select className="w-full p-2 bg-slate-50 border rounded-lg text-sm" value={formData.shift} onChange={e => setFormData({...formData, shift: e.target.value as any})}>
+          <select className="w-full p-2 bg-slate-50 border rounded-lg text-sm text-slate-900" value={formData.shift} onChange={e => setFormData({...formData, shift: e.target.value as any})}>
             <option>Matin</option>
             <option>Soir</option>
             <option>Journée</option>
@@ -69,7 +69,7 @@ const RevenueForm = ({ onSuccess }: { onSuccess: () => void }) => {
       <div>
         <label className="block text-[10px] uppercase font-bold text-slate-400 mb-1">Recette Brute (DT)</label>
         <div className="relative">
-          <input type="number" step="0.001" required className="w-full p-3 pl-10 bg-slate-50 border rounded-xl text-lg font-bold" placeholder="0.000" value={formData.grossAmount} onChange={e => setFormData({...formData, grossAmount: e.target.value})} />
+          <input type="number" step="0.001" required className="w-full p-3 pl-10 bg-slate-50 border rounded-xl text-lg font-bold text-slate-900" placeholder="0.000" value={formData.grossAmount} onChange={e => setFormData({...formData, grossAmount: e.target.value})} />
           <DollarSign className="absolute left-3 top-3.5 text-slate-400" size={20} />
         </div>
       </div>
@@ -91,19 +91,19 @@ const RevenueForm = ({ onSuccess }: { onSuccess: () => void }) => {
           ))}
         </div>
         <div className="grid grid-cols-2 gap-3">
-          <input type="number" step="0.01" placeholder="Litres" className="w-full p-2 border rounded-lg text-sm" value={formData.fuelAmount} onChange={e => setFormData({...formData, fuelAmount: e.target.value})} />
-          <input type="number" step="0.001" placeholder="Prix (DT)" className="w-full p-2 border rounded-lg text-sm font-bold" value={formData.fuelCost} onChange={e => setFormData({...formData, fuelCost: e.target.value})} />
+          <input type="number" step="0.01" placeholder="Litres" className="w-full p-2 border rounded-lg text-sm text-slate-900" value={formData.fuelAmount} onChange={e => setFormData({...formData, fuelAmount: e.target.value})} />
+          <input type="number" step="0.001" placeholder="Prix (DT)" className="w-full p-2 border rounded-lg text-sm font-bold text-slate-900" value={formData.fuelCost} onChange={e => setFormData({...formData, fuelCost: e.target.value})} />
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-3">
         <div>
           <label className="block text-[10px] uppercase font-bold text-slate-400 mb-1">Km Départ</label>
-          <input type="number" required className="w-full p-2 border rounded-lg text-sm" value={formData.mileageStart} onChange={e => setFormData({...formData, mileageStart: e.target.value})} />
+          <input type="number" required className="w-full p-2 border rounded-lg text-sm text-slate-900" value={formData.mileageStart} onChange={e => setFormData({...formData, mileageStart: e.target.value})} />
         </div>
         <div>
           <label className="block text-[10px] uppercase font-bold text-slate-400 mb-1">Km Arrivée</label>
-          <input type="number" required className="w-full p-2 border rounded-lg text-sm" value={formData.mileageEnd} onChange={e => setFormData({...formData, mileageEnd: e.target.value})} />
+          <input type="number" required className="w-full p-2 border rounded-lg text-sm text-slate-900" value={formData.mileageEnd} onChange={e => setFormData({...formData, mileageEnd: e.target.value})} />
         </div>
       </div>
 
