@@ -3,11 +3,13 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
-  // Utiliser './' permet une compatibilité universelle pour les chemins relatifs
-  base: './', 
+  // Base relative impérative pour GitHub Pages et AI Studio Preview
+  base: './',
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
+    cssCodeSplit: false, // Force un seul fichier CSS pour éviter les erreurs de chargement
+    sourcemap: false,
     minify: 'terser',
     rollupOptions: {
       input: {
@@ -16,6 +18,8 @@ export default defineConfig({
     },
   },
   server: {
-    port: 3000
+    port: 3000,
+    host: true,
+    strictPort: true,
   }
 });
