@@ -25,7 +25,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
 
       - name: Install dependencies
         run: npm install --legacy-peer-deps
@@ -33,7 +32,7 @@ jobs:
       - name: Build
         run: |
           npm run build
-          # S'assurer que les fichiers PWA sont dans le dossier de sortie
+          # Copie manuelle des fichiers PWA si non gérés par le plugin
           cp manifest.json dist/ || true
           cp sw.js dist/ || true
 
