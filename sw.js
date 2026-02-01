@@ -1,19 +1,17 @@
+const CACHE_NAME = 'taxi-manager-v1.0.9';
 
-const CACHE_NAME = 'taxi-manager-v1.0.6';
-// Liste des fichiers à mettre en cache pour le mode hors-ligne
+// On ne met en cache que les fichiers vitaux et prévisibles ici
 const ASSETS = [
   './',
   './index.html',
   './manifest.json',
-  './assets/index.js', // Ces chemins seront générés par le build Vite
-  './assets/index.css'
+  'https://cdn.tailwindcss.com'
 ];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      // On utilise une approche plus souple pour ne pas bloquer si un fichier manque
-      return Promise.allSettled(ASSETS.map(url => cache.add(url)));
+      return cache.addAll(ASSETS);
     })
   );
 });
@@ -29,11 +27,9 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+  // Stratégie : Network First, falling back to cache
   event.respondWith(
-    caches.match(event.request).then((response) => {
-      return response || fetch(event.request).catch(() => {
-        // Optionnel: retourner une page d'erreur personnalisée si hors-ligne total
-      });
-    })
+    fetch(event.request)
+      .catch(() => caches.match(event.request))
   );
 });
