@@ -30,11 +30,7 @@ jobs:
         run: npm install --legacy-peer-deps
 
       - name: Build
-        run: |
-          npm run build
-          # Copie manuelle des fichiers PWA si non gérés par le plugin
-          cp manifest.json dist/ || true
-          cp sw.js dist/ || true
+        run: npm run build
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
