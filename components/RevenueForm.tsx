@@ -1,162 +1,117 @@
-
 import React, { useState } from 'react';
 import { db } from '../db/database';
-import { Settings, Droplets, Disc, Compass, Lightbulb, Plus, Camera, X } from 'lucide-react';
-import { formatCurrency } from '../utils/format';
+import { DollarSign, Fuel, Navigation, Calendar } from 'lucide-react';
 
-const CATEGORIES = [
-  { id: 'Moteur', label: 'Moteur', icon: Settings },
-  { id: 'Refroidissement', label: 'Refroidissement', icon: Droplets },
-  { id: 'Freinage', label: 'Freinage', icon: Disc },
-  { id: 'Direction', label: 'Direction', icon: Compass },
-  { id: 'Eclairage', label: 'Éclairage', icon: Lightbulb },
-  { id: 'Autre', label: 'Autre', icon: Plus },
-];
+const FUEL_TYPES = ['Essence', 'Gasoil', 'Gasoil 50', 'GPL', 'Electrique'];
 
-export const MaintenanceForm: React.FC<{ onSuccess: () => void }> = ({ onSuccess }) => {
+const RevenueForm = ({ onSuccess }: { onSuccess: () => void }) => {
   const [formData, setFormData] = useState({
     date: new Date().toISOString().split('T')[0],
-    mileage: '',
-    category: 'Moteur',
-    item: '',
-    brand: '',
-    price: '',
+    shift: 'Journée' as any,
+    grossAmount: '',
+    fuelAmount: '',
+    fuelCost: '',
+    fuelType: [] as string[],
+    otherExpenses: '',
+    mileageStart: '',
+    mileageEnd: '',
   });
-  const [photo, setPhoto] = useState<Blob | null>(null);
-  const [preview, setPreview] = useState<string | null>(null);
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setPhoto(file);
-      setPreview(URL.createObjectURL(file));
-    }
+  const toggleFuelType = (type: string) => {
+    setFormData(prev => ({
+      ...prev,
+      fuelType: prev.fuelType.includes(type) 
+        ? prev.fuelType.filter(t => t !== type)
+        : [...prev.fuelType, type].slice(0, 2) // Max 2 types (Hybrid)
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await db.maintenance.add({
+    await db.revenue.add({
       ...formData,
-      mileage: Number(formData.mileage),
-      price: Number(formData.price),
-      photo: photo || undefined,
+      grossAmount: Number(formData.grossAmount),
+      fuelAmount: Number(formData.fuelAmount),
+      fuelCost: Number(formData.fuelCost),
+      otherExpenses: Number(formData.otherExpenses || 0),
+      mileageStart: Number(formData.mileageStart),
+      mileageEnd: Number(formData.mileageEnd),
     });
     onSuccess();
   };
 
+  const net = Number(formData.grossAmount || 0) - Number(formData.fuelCost || 0) - Number(formData.otherExpenses || 0);
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 p-4 bg-white rounded-xl shadow-sm">
-      <h3 className="text-lg font-bold text-slate-800">Nouvel Entretien</h3>
-      
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label className="block text-xs font-medium text-slate-500 mb-1">Date</label>
-          <input
-            type="date"
-            required
-            className="w-full p-2 border rounded-lg"
-            value={formData.date}
-            onChange={e => setFormData({ ...formData, date: e.target.value })}
-          />
+    <form onSubmit={handleSubmit} className="space-y-4 p-4 bg-white rounded-xl shadow-lg border border-slate-100">
+      <div className="flex justify-between items-center mb-2">
+        <h3 className="text-lg font-black text-slate-800">Recette du Jour</h3>
+        <div className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold">
+          Net: {new Intl.NumberFormat('fr-TN', { minimumFractionDigits: 3 }).format(net)} DT
         </div>
-        <div>
-          <label className="block text-xs font-medium text-slate-500 mb-1">Kilométrage</label>
-          <input
-            type="number"
-            placeholder="Km"
-            required
-            className="w-full p-2 border rounded-lg"
-            value={formData.mileage}
-            onChange={e => setFormData({ ...formData, mileage: e.target.value })}
-          />
-        </div>
-      </div>
-
-      <div>
-        <label className="block text-xs font-medium text-slate-500 mb-2">Catégorie</label>
-        <div className="grid grid-cols-3 gap-2">
-          {CATEGORIES.map(cat => {
-            const Icon = cat.icon;
-            return (
-              <button
-                key={cat.id}
-                type="button"
-                onClick={() => setFormData({ ...formData, category: cat.id })}
-                className={`flex flex-col items-center p-2 rounded-lg border transition-all ${
-                  formData.category === cat.id ? 'bg-blue-50 border-blue-500 text-blue-600' : 'bg-slate-50 border-transparent text-slate-500'
-                }`}
-              >
-                <Icon size={20} />
-                <span className="text-[10px] mt-1">{cat.label}</span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      <div>
-        <label className="block text-xs font-medium text-slate-500 mb-1">Pièce / Service</label>
-        <input
-          type="text"
-          placeholder="Ex: Vidange 10k, Plaquettes..."
-          required
-          className="w-full p-2 border rounded-lg"
-          value={formData.item}
-          onChange={e => setFormData({ ...formData, item: e.target.value })}
-        />
       </div>
 
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="block text-xs font-medium text-slate-500 mb-1">Marque</label>
-          <input
-            type="text"
-            placeholder="Ex: Castrol, Bosch..."
-            className="w-full p-2 border rounded-lg"
-            value={formData.brand}
-            onChange={e => setFormData({ ...formData, brand: e.target.value })}
-          />
+          <label className="block text-[10px] uppercase font-bold text-slate-400 mb-1">Date</label>
+          <input type="date" required className="w-full p-2 bg-slate-50 border rounded-lg text-sm" value={formData.date} onChange={e => setFormData({...formData, date: e.target.value})} />
         </div>
         <div>
-          <label className="block text-xs font-medium text-slate-500 mb-1">Prix (DT)</label>
-          <input
-            type="number"
-            step="0.001"
-            placeholder="0.000"
-            required
-            className="w-full p-2 border rounded-lg"
-            value={formData.price}
-            onChange={e => setFormData({ ...formData, price: e.target.value })}
-          />
+          <label className="block text-[10px] uppercase font-bold text-slate-400 mb-1">Shift</label>
+          <select className="w-full p-2 bg-slate-50 border rounded-lg text-sm" value={formData.shift} onChange={e => setFormData({...formData, shift: e.target.value as any})}>
+            <option>Matin</option>
+            <option>Soir</option>
+            <option>Journée</option>
+          </select>
         </div>
       </div>
 
-      <div className="flex items-center gap-4">
-        <label className="flex-1 cursor-pointer flex items-center justify-center gap-2 p-3 border-2 border-dashed border-slate-300 rounded-lg text-slate-500 hover:border-blue-400 hover:text-blue-500 transition-colors">
-          <Camera size={20} />
-          <span className="text-sm">Ajouter une photo</span>
-          <input type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
-        </label>
-        {preview && (
-          <div className="relative w-16 h-16 bg-slate-100 rounded-lg overflow-hidden border">
-            <img src={preview} className="w-full h-full object-cover" alt="Preview" />
+      <div>
+        <label className="block text-[10px] uppercase font-bold text-slate-400 mb-1">Recette Brute (DT)</label>
+        <div className="relative">
+          <input type="number" step="0.001" required className="w-full p-3 pl-10 bg-slate-50 border rounded-xl text-lg font-bold" placeholder="0.000" value={formData.grossAmount} onChange={e => setFormData({...formData, grossAmount: e.target.value})} />
+          <DollarSign className="absolute left-3 top-3.5 text-slate-400" size={20} />
+        </div>
+      </div>
+
+      <div className="p-3 bg-blue-50/50 rounded-xl space-y-3">
+        <label className="block text-[10px] uppercase font-bold text-blue-600 mb-1">Carburant</label>
+        <div className="flex flex-wrap gap-2">
+          {FUEL_TYPES.map(type => (
             <button
+              key={type}
               type="button"
-              onClick={() => { setPhoto(null); setPreview(null); }}
-              className="absolute top-0 right-0 p-0.5 bg-red-500 text-white rounded-bl-lg"
+              onClick={() => toggleFuelType(type)}
+              className={`px-3 py-1 rounded-full text-[10px] font-bold border transition-all ${
+                formData.fuelType.includes(type) ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-slate-200 text-slate-500'
+              }`}
             >
-              <X size={12} />
+              {type}
             </button>
-          </div>
-        )}
+          ))}
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <input type="number" step="0.01" placeholder="Litres" className="w-full p-2 border rounded-lg text-sm" value={formData.fuelAmount} onChange={e => setFormData({...formData, fuelAmount: e.target.value})} />
+          <input type="number" step="0.001" placeholder="Prix (DT)" className="w-full p-2 border rounded-lg text-sm font-bold" value={formData.fuelCost} onChange={e => setFormData({...formData, fuelCost: e.target.value})} />
+        </div>
       </div>
 
-      <button
-        type="submit"
-        className="w-full py-3 bg-blue-600 text-white font-bold rounded-xl shadow-lg active:scale-95 transition-transform"
-      >
-        Enregistrer l'Entretien
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="block text-[10px] uppercase font-bold text-slate-400 mb-1">Km Départ</label>
+          <input type="number" required className="w-full p-2 border rounded-lg text-sm" value={formData.mileageStart} onChange={e => setFormData({...formData, mileageStart: e.target.value})} />
+        </div>
+        <div>
+          <label className="block text-[10px] uppercase font-bold text-slate-400 mb-1">Km Arrivée</label>
+          <input type="number" required className="w-full p-2 border rounded-lg text-sm" value={formData.mileageEnd} onChange={e => setFormData({...formData, mileageEnd: e.target.value})} />
+        </div>
+      </div>
+
+      <button type="submit" className="w-full py-4 bg-slate-900 text-white font-black rounded-2xl shadow-xl active:scale-95 transition-all">
+        ENREGISTRER LA JOURNÉE
       </button>
     </form>
   );
 };
+
+export default RevenueForm;
