@@ -38,7 +38,7 @@ const AdminModal = ({ onClose }: { onClose: () => void }) => {
             <input
               type="text"
               placeholder="Ex: 200 TU 5555"
-              className="w-full p-3 border rounded-xl font-mono text-lg uppercase"
+              className="w-full p-3 border rounded-xl font-mono text-lg uppercase text-slate-900"
               value={plate}
               onChange={e => setPlate(e.target.value)}
             />
