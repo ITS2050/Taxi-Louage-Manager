@@ -3,24 +3,29 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 
-// Protection contre l'erreur 'Cannot read properties of undefined (reading PROD)'
-const isProd = typeof import.meta.env !== 'undefined' && import.meta.env.PROD;
+// Détection sécurisée de l'environnement pour éviter l'erreur 'undefined'
+const isProd = (() => {
+  try {
+    // @ts-ignore - Vite injecte import.meta.env
+    return !!(import.meta.env?.PROD || process.env?.NODE_ENV === 'production');
+  } catch (e) {
+    return false;
+  }
+})();
 
 // Enregistrement du Service Worker uniquement en production
 if ('serviceWorker' in navigator && isProd) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./sw.js').then(registration => {
-      console.log('SW registered: ', registration);
-    }).catch(registrationError => {
-      console.log('SW registration failed: ', registrationError);
+      console.log('SW registered');
+    }).catch(err => {
+      console.log('SW failed', err);
     });
   });
 }
 
 const rootElement = document.getElementById('root');
-if (!rootElement) {
-  throw new Error("Could not find root element to mount to");
-}
+if (!rootElement) throw new Error("Root element not found");
 
 const root = ReactDOM.createRoot(rootElement);
 root.render(
