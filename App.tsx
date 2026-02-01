@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { LicenseProvider, useLicense } from './context/LicenseContext';
 import { db, RevenueRecord, ExpenseRecord } from './db/database';
-import { MaintenanceForm } from './components/MaintenanceForm';
-import { RevenueForm } from './components/RevenueForm';
-import { AdminModal } from './components/AdminModal';
+import MaintenanceForm from './components/MaintenanceForm';
+import RevenueForm from './components/RevenueForm';
+import AdminModal from './components/AdminModal';
 import { 
   LayoutDashboard, 
   Wrench, 
@@ -392,7 +392,7 @@ const MainContent: React.FC = () => {
 
       <footer className="text-center text-slate-300 text-[10px] font-black uppercase tracking-widest pb-12 mt-8">
         <button onClick={() => { setAdminClicks(c => c + 1); if(adminClicks >= 4) { setShowAdmin(true); setAdminClicks(0); } }} className="hover:opacity-100 opacity-30 transition-opacity">
-          © 2025 v1.0.8-TUNISIA
+          © 2025 v1.1.0-TUNISIA
         </button>
       </footer>
 
