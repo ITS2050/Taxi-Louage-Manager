@@ -12,20 +12,9 @@
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3448/3448636.png">
     
     <style>
-        /* Styles critiques pour éviter l'aspect blanc/brut au chargement */
-        :root {
-            --bg-color: #f8fafc;
-        }
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: var(--bg-color);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            -webkit-font-smoothing: antialiased;
-        }
-        #root {
-            min-height: 100vh;
-        }
+        /* Styles critiques pour éviter le flash blanc au chargement */
+        body { margin: 0; background-color: #0f172a; }
+        #root { min-height: 100vh; }
     </style>
 <script type="importmap">
 {
@@ -45,7 +34,7 @@
 </head>
 <body>
     <div id="root"></div>
-    <!-- Utilisation d'un chemin relatif pour assurer la compatibilité partout -->
+    <!-- Point d'entrée de l'application géré par Vite -->
     <script type="module" src="./index.tsx"></script>
 </body>
 </html>
