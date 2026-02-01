@@ -1,0 +1,7 @@
+{
+  "name": "Taxi/Louage Manager",
+  "description": "Gestion complète pour chauffeurs de taxi et louage en Tunisie : recettes, entretien, dépenses et suivi de consommation.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}

@@ -1,0 +1,19 @@
+
+{
+  "short_name": "TaxiManager",
+  "name": "Taxi/Louage Manager Tunisie",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3448/3448636.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#2563eb",
+  "background_color": "#f8fafc",
+  "orientation": "portrait",
+  "lang": "fr-TN"
+}
