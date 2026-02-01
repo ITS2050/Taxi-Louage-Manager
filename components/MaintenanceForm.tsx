@@ -52,7 +52,7 @@ const MaintenanceForm = ({ onSuccess }: { onSuccess: () => void }) => {
           <input
             type="date"
             required
-            className="w-full p-2 border rounded-lg"
+            className="w-full p-2 border rounded-lg text-slate-900"
             value={formData.date}
             onChange={e => setFormData({ ...formData, date: e.target.value })}
           />
@@ -63,7 +63,7 @@ const MaintenanceForm = ({ onSuccess }: { onSuccess: () => void }) => {
             type="number"
             placeholder="Km"
             required
-            className="w-full p-2 border rounded-lg"
+            className="w-full p-2 border rounded-lg text-slate-900"
             value={formData.mileage}
             onChange={e => setFormData({ ...formData, mileage: e.target.value })}
           />
@@ -98,7 +98,7 @@ const MaintenanceForm = ({ onSuccess }: { onSuccess: () => void }) => {
           type="text"
           placeholder="Ex: Vidange 10k, Plaquettes..."
           required
-          className="w-full p-2 border rounded-lg"
+          className="w-full p-2 border rounded-lg text-slate-900"
           value={formData.item}
           onChange={e => setFormData({ ...formData, item: e.target.value })}
         />
@@ -110,7 +110,7 @@ const MaintenanceForm = ({ onSuccess }: { onSuccess: () => void }) => {
           <input
             type="text"
             placeholder="Ex: Castrol, Bosch..."
-            className="w-full p-2 border rounded-lg"
+            className="w-full p-2 border rounded-lg text-slate-900"
             value={formData.brand}
             onChange={e => setFormData({ ...formData, brand: e.target.value })}
           />
@@ -122,7 +122,7 @@ const MaintenanceForm = ({ onSuccess }: { onSuccess: () => void }) => {
             step="0.001"
             placeholder="0.000"
             required
-            className="w-full p-2 border rounded-lg"
+            className="w-full p-2 border rounded-lg text-slate-900"
             value={formData.price}
             onChange={e => setFormData({ ...formData, price: e.target.value })}
           />
