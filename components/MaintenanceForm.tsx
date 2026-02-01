@@ -1,8 +1,6 @@
-
 import React, { useState } from 'react';
 import { db } from '../db/database';
 import { Settings, Droplets, Disc, Compass, Lightbulb, Plus, Camera, X } from 'lucide-react';
-import { formatCurrency } from '../utils/format';
 
 const CATEGORIES = [
   { id: 'Moteur', label: 'Moteur', icon: Settings },
@@ -13,7 +11,7 @@ const CATEGORIES = [
   { id: 'Autre', label: 'Autre', icon: Plus },
 ];
 
-export const MaintenanceForm: React.FC<{ onSuccess: () => void }> = ({ onSuccess }) => {
+const MaintenanceForm = ({ onSuccess }: { onSuccess: () => void }) => {
   const [formData, setFormData] = useState({
     date: new Date().toISOString().split('T')[0],
     mileage: '',
@@ -160,3 +158,5 @@ export const MaintenanceForm: React.FC<{ onSuccess: () => void }> = ({ onSuccess
     </form>
   );
 };
+
+export default MaintenanceForm;
