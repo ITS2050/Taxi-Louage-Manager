@@ -1,5 +1,4 @@
-
-import { Dexie, Table } from 'dexie';
+import Dexie, { type Table } from 'dexie';
 
 export interface UserProfile {
   id?: number;
@@ -18,9 +17,9 @@ export interface RevenueRecord {
   date: string;
   shift: 'Matin' | 'Soir' | 'Journée';
   grossAmount: number;
-  fuelAmount: number; // Litres
-  fuelCost: number; // DT
-  fuelType: string[]; // ['Essence', 'GPL']
+  fuelAmount: number;
+  fuelCost: number;
+  fuelType: string[];
   otherExpenses: number;
   mileageStart: number;
   mileageEnd: number;
