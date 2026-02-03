@@ -395,10 +395,13 @@ const MainContent: React.FC = () => {
       {showRevenueForm && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm p-4 flex items-end">
           <div className="w-full max-w-md mx-auto animate-in slide-in-from-bottom duration-300">
-            <button onClick={() => setShowRevenueForm(false)} className="absolute -top-12 right-0 bg-white p-2 rounded-full shadow-lg">
-              <X size={24} className="text-slate-900" />
+            <button onClick={() => setShowRevenueForm(false)} className="absolute -top-12 right-0 bg-white/20 p-2 rounded-full shadow-lg text-white">
+              <X size={24} />
             </button>
-            <RevenueForm onSuccess={() => { setShowRevenueForm(false); window.location.reload(); }} />
+            <RevenueForm 
+              onSuccess={() => { setShowRevenueForm(false); window.location.reload(); }} 
+              onCancel={() => setShowRevenueForm(false)}
+            />
           </div>
         </div>
       )}
@@ -406,10 +409,13 @@ const MainContent: React.FC = () => {
       {showExpenseForm && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm p-4 flex items-end">
           <div className="w-full max-w-md mx-auto animate-in slide-in-from-bottom duration-300">
-            <button onClick={() => setShowExpenseForm(false)} className="absolute -top-12 right-0 bg-white p-2 rounded-full shadow-lg">
-              <X size={24} className="text-slate-900" />
+            <button onClick={() => setShowExpenseForm(false)} className="absolute -top-12 right-0 bg-white/20 p-2 rounded-full shadow-lg text-white">
+              <X size={24} />
             </button>
-            <ExpenseForm onSuccess={() => { setShowExpenseForm(false); window.location.reload(); }} />
+            <ExpenseForm 
+              onSuccess={() => { setShowExpenseForm(false); window.location.reload(); }} 
+              onCancel={() => setShowExpenseForm(false)}
+            />
           </div>
         </div>
       )}
