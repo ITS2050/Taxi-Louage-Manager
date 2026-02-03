@@ -1,6 +1,11 @@
 import React, { useState } from 'react';
 import { db } from '../db/database';
-import { CreditCard, Calendar, RefreshCcw, Tag } from 'lucide-react';
+import { CreditCard, Calendar, RefreshCcw, Tag, ArrowLeft } from 'lucide-react';
+
+interface ExpenseFormProps {
+  onSuccess: () => void;
+  onCancel: () => void;
+}
 
 const CATEGORIES = [
   { id: 'Assurance', label: 'Assurance' },
@@ -13,7 +18,7 @@ const CATEGORIES = [
   { id: 'Autre', label: 'Autre' },
 ];
 
-const ExpenseForm = ({ onSuccess }: { onSuccess: () => void }) => {
+const ExpenseForm = ({ onSuccess, onCancel }: ExpenseFormProps) => {
   const [formData, setFormData] = useState({
     type: 'Fixe' as 'Fixe' | 'Variable',
     category: 'Assurance' as any,
@@ -110,12 +115,21 @@ const ExpenseForm = ({ onSuccess }: { onSuccess: () => void }) => {
         </div>
       </div>
 
-      <button
-        type="submit"
-        className="w-full py-4.5 bg-slate-900 text-white font-black rounded-[1.5rem] shadow-xl hover:opacity-90 active:scale-95 transition-all mt-2"
-      >
-        ENREGISTRER LA CHARGE
-      </button>
+      <div className="flex gap-3 pt-2">
+        <button 
+          type="button" 
+          onClick={onCancel}
+          className="flex-1 py-4.5 bg-slate-100 text-slate-500 font-black rounded-[1.5rem] active:scale-95 transition-all flex items-center justify-center gap-2"
+        >
+          <ArrowLeft size={18} /> RETOUR
+        </button>
+        <button 
+          type="submit" 
+          className="flex-[2] py-4.5 bg-slate-900 text-white font-black rounded-[1.5rem] shadow-xl hover:opacity-90 active:scale-95 transition-all"
+        >
+          ENREGISTRER
+        </button>
+      </div>
     </form>
   );
 };
