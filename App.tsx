@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { LicenseProvider, useLicense } from './context/LicenseContext';
-import { db, type RevenueRecord, type ExpenseRecord } from './db/database';
+import { db, type RevenueRecord, type ExpenseRecord, type MaintenanceRecord } from './db/database';
 import MaintenanceForm from './components/MaintenanceForm';
 import RevenueForm from './components/RevenueForm';
 import ExpenseForm from './components/ExpenseForm';
@@ -36,7 +36,7 @@ const LoginScreen: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
     phone: '',
     plate: '',
     pin: '',
-    fuelType: 'Essence', // Valeur par défaut
+    fuelType: 'Essence',
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -154,31 +154,44 @@ const PinScreen: React.FC<{ correctPin: string; onUnlocked: () => void }> = ({ c
 
 const DashboardPage: React.FC<{ onAddExpense: () => void }> = ({ onAddExpense }) => {
   const { user } = useLicense();
-  const [data, setData] = useState({ revenue: [] as RevenueRecord[], expenses: [] as ExpenseRecord[] });
+  const [data, setData] = useState({ 
+    revenue: [] as RevenueRecord[], 
+    expenses: [] as ExpenseRecord[],
+    maintenance: [] as MaintenanceRecord[]
+  });
 
   useEffect(() => {
     const load = async () => {
       const rev = await db.revenue.orderBy('date').reverse().limit(30).toArray();
       const exp = await db.expenses.toArray();
-      setData({ revenue: rev.reverse(), expenses: exp });
+      const maint = await db.maintenance.toArray();
+      setData({ revenue: rev.reverse(), expenses: exp, maintenance: maint });
     };
     load();
   }, []);
 
   const stats = useMemo(() => {
     const totalBrut = data.revenue.reduce((acc, curr) => acc + curr.grossAmount, 0);
-    const totalCarburant = data.revenue.reduce((acc, curr) => acc + curr.fuelCost, 0);
-    const totalExpenses = data.revenue.reduce((acc, curr) => acc + curr.otherExpenses, 0);
+    const totalFuel = data.revenue.reduce((acc, curr) => acc + curr.fuelCost, 0);
+    const totalDriverShare = data.revenue.reduce((acc, curr) => acc + (curr.driverShare || 0), 0);
+    const totalOtherRevExpenses = data.revenue.reduce((acc, curr) => acc + curr.otherExpenses, 0);
+    
+    // Nouvelles déductions pour un net réel
+    const totalMaintenance = data.maintenance.reduce((acc, curr) => acc + curr.price, 0);
+    const totalFixedExpenses = data.expenses.reduce((acc, curr) => acc + curr.amount, 0);
+
+    const netReel = totalBrut - totalFuel - totalDriverShare - totalOtherRevExpenses - totalMaintenance - totalFixedExpenses;
+
     const avgCons = data.revenue.length > 0 
       ? data.revenue.reduce((acc, curr) => acc + (curr.fuelAmount / ((curr.mileageEnd - curr.mileageStart) || 1) * 100), 0) / data.revenue.length
       : 0;
 
     return {
-      net: totalBrut - totalCarburant - totalExpenses,
+      net: netReel,
       brut: totalBrut,
       cons: avgCons
     };
-  }, [data.revenue]);
+  }, [data]);
 
   const chartData = useMemo(() => {
     return data.revenue.map(r => ({
@@ -194,11 +207,10 @@ const DashboardPage: React.FC<{ onAddExpense: () => void }> = ({ onAddExpense })
           <h1 className="text-3xl font-black text-slate-900 tracking-tighter">Tableau de bord</h1>
           <div className="flex items-center gap-2 text-slate-400 text-xs font-bold uppercase tracking-widest">
             <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-            Connecté: {user?.firstName}
+            {user?.firstName} ({user?.plate})
           </div>
         </div>
         <div className="bg-slate-900 text-white p-3 rounded-2xl shadow-xl flex items-center gap-2">
-          <span className="text-[10px] font-black uppercase opacity-60 leading-none">Status</span>
           <span className="font-black text-sm leading-none">{user?.type}</span>
         </div>
       </div>
@@ -208,7 +220,7 @@ const DashboardPage: React.FC<{ onAddExpense: () => void }> = ({ onAddExpense })
           <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform">
             <CreditCard size={120} />
           </div>
-          <p className="text-xs font-black uppercase tracking-widest opacity-50 mb-1">Recette Nette Mensuelle</p>
+          <p className="text-xs font-black uppercase tracking-widest opacity-50 mb-1">Recette Nette Réelle (Mois)</p>
           <p className="text-4xl font-black tracking-tighter mb-4">{formatCurrency(stats.net)}</p>
           <div className="flex gap-4">
             <div className="flex items-center gap-1.5 text-green-400">
@@ -220,6 +232,7 @@ const DashboardPage: React.FC<{ onAddExpense: () => void }> = ({ onAddExpense })
               <span className="text-[10px] font-black">Moy: {stats.cons.toFixed(1)} L/100</span>
             </div>
           </div>
+          <p className="text-[9px] text-slate-500 mt-2 font-bold uppercase tracking-wider italic">* Déduit : Carburant, Chauffeur, Entretien et Charges fixes</p>
         </div>
       </div>
 
@@ -251,10 +264,7 @@ const DashboardPage: React.FC<{ onAddExpense: () => void }> = ({ onAddExpense })
           <h4 className="text-xs font-black text-orange-800 uppercase tracking-widest flex items-center gap-2">
             <AlertCircle size={14} /> Rappels d'Échéances
           </h4>
-          <button 
-            onClick={onAddExpense}
-            className="p-1.5 bg-orange-200 text-orange-800 rounded-lg hover:bg-orange-300 transition-colors"
-          >
+          <button onClick={onAddExpense} className="p-1.5 bg-orange-200 text-orange-800 rounded-lg hover:bg-orange-300 transition-colors">
             <Plus size={16} strokeWidth={3} />
           </button>
         </div>
@@ -381,7 +391,7 @@ const MainContent: React.FC = () => {
             {canEnterCode && (
               <div className="flex gap-1.5">
                 <input type="text" maxLength={8} placeholder="Code" className="w-16 p-2 rounded-xl bg-white/10 text-xs text-center border border-white/20 uppercase text-white" value={activationCode} onChange={e => setActivationCode(e.target.value)} />
-                <button onClick={async () => (await activateLicense(activationCode)) ? alert('OK') : alert('NO')} className="bg-yellow-400 text-slate-900 px-3 py-2 rounded-xl text-[10px] font-black uppercase">Activer</button>
+                <button onClick={async () => (await activateLicense(activationCode)) ? alert('Activé !') : alert('Code invalide')} className="bg-yellow-400 text-slate-900 px-3 py-2 rounded-xl text-[10px] font-black uppercase">Activer</button>
               </div>
             )}
           </div>
@@ -420,12 +430,10 @@ const MainContent: React.FC = () => {
         </div>
       )}
 
-      {/* Action FAB */}
       <button onClick={() => setShowRevenueForm(true)} className="fixed bottom-24 right-6 w-16 h-16 bg-yellow-400 text-slate-900 rounded-[2rem] shadow-2xl shadow-yellow-400/30 flex items-center justify-center active:scale-90 transition-all z-40">
         <Plus size={32} strokeWidth={3} />
       </button>
 
-      {/* Navigation */}
       <nav className="fixed bottom-6 left-6 right-6 max-w-md mx-auto h-20 bg-white/90 backdrop-blur-xl border border-white/50 shadow-[0_20px_50px_rgba(0,0,0,0.1)] rounded-[2.5rem] flex items-center justify-around px-4 z-40">
         <button onClick={() => setActiveTab('dashboard')} className={`flex flex-col items-center gap-1 ${activeTab === 'dashboard' ? 'text-slate-900' : 'text-slate-300'}`}>
           <LayoutDashboard size={24} strokeWidth={activeTab === 'dashboard' ? 3 : 2} />
