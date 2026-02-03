@@ -1,3 +1,4 @@
+
 import Dexie, { type Table } from 'dexie';
 
 export interface UserProfile {
@@ -8,6 +9,7 @@ export interface UserProfile {
   phone: string;
   plate: string;
   pin: string;
+  fuelType: string; // Nouveau champ pour le type de moteur/carburant
   trialStartDate: number;
   licenseExpiryDate: number;
 }
@@ -53,7 +55,8 @@ export class AppDatabase extends Dexie {
 
   constructor() {
     super('TaxiLouageManagerDB');
-    this.version(2).stores({
+    // Définition du schéma de la base de données avec la méthode version() héritée de Dexie
+    this.version(3).stores({ // Incrément de version pour le nouveau champ
       userProfile: '++id',
       revenue: '++id, date',
       maintenance: '++id, date, mileage',
