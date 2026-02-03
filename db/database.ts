@@ -1,3 +1,4 @@
+
 import { Dexie, type Table } from 'dexie';
 
 export interface UserProfile {
@@ -8,7 +9,7 @@ export interface UserProfile {
   phone: string;
   plate: string;
   pin: string;
-  fuelType: string; // Nouveau champ pour le type de moteur/carburant
+  fuelType: string;
   trialStartDate: number;
   licenseExpiryDate: number;
 }
@@ -21,6 +22,7 @@ export interface RevenueRecord {
   fuelAmount: number;
   fuelCost: number;
   fuelType: string[];
+  driverShare: number; // Nouveau: Part prélevée par/pour le chauffeur
   otherExpenses: number;
   mileageStart: number;
   mileageEnd: number;
@@ -55,10 +57,10 @@ export class AppDatabase extends Dexie {
   constructor() {
     super('TaxiLouageManagerDB');
     
-    // Fix: Defining the schema inside the constructor is the recommended pattern for Dexie with TypeScript.
-    // This ensures that the version() method from the base Dexie class is correctly prioritized 
-    // and available for configuration during instance initialization.
-    this.version(3).stores({
+    // Fix: Explicitly cast 'this' to 'Dexie' to ensure the TypeScript compiler correctly 
+    // identifies the 'version' method from the Dexie base class, resolving the error where 
+    // 'version' was not recognized on the AppDatabase type.
+    (this as Dexie).version(4).stores({
       userProfile: '++id',
       revenue: '++id, date',
       maintenance: '++id, date, mileage',
