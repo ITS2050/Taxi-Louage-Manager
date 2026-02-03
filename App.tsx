@@ -3,6 +3,7 @@ import { LicenseProvider, useLicense } from './context/LicenseContext';
 import { db, type RevenueRecord, type ExpenseRecord } from './db/database';
 import MaintenanceForm from './components/MaintenanceForm';
 import RevenueForm from './components/RevenueForm';
+import ExpenseForm from './components/ExpenseForm';
 import AdminModal from './components/AdminModal';
 import { 
   LayoutDashboard, 
@@ -18,7 +19,8 @@ import {
   ArrowUpRight,
   X,
   CreditCard,
-  History
+  History,
+  Receipt
 } from 'lucide-react';
 import { formatCurrency, formatDate } from './utils/format';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
@@ -150,7 +152,7 @@ const PinScreen: React.FC<{ correctPin: string; onUnlocked: () => void }> = ({ c
 
 // --- PAGES ---
 
-const DashboardPage: React.FC = () => {
+const DashboardPage: React.FC<{ onAddExpense: () => void }> = ({ onAddExpense }) => {
   const { user } = useLicense();
   const [data, setData] = useState({ revenue: [] as RevenueRecord[], expenses: [] as ExpenseRecord[] });
 
@@ -245,9 +247,17 @@ const DashboardPage: React.FC = () => {
       </div>
 
       <div className="bg-orange-50 p-5 rounded-3xl border border-orange-100 space-y-3">
-        <h4 className="text-xs font-black text-orange-800 uppercase tracking-widest flex items-center gap-2">
-          <AlertCircle size={14} /> Rappels d'Échéances
-        </h4>
+        <div className="flex justify-between items-center">
+          <h4 className="text-xs font-black text-orange-800 uppercase tracking-widest flex items-center gap-2">
+            <AlertCircle size={14} /> Rappels d'Échéances
+          </h4>
+          <button 
+            onClick={onAddExpense}
+            className="p-1.5 bg-orange-200 text-orange-800 rounded-lg hover:bg-orange-300 transition-colors"
+          >
+            <Plus size={16} strokeWidth={3} />
+          </button>
+        </div>
         <div className="space-y-2">
           {data.expenses.filter(e => e.expiryDate).map((e, idx) => (
             <div key={idx} className="flex justify-between items-center bg-white p-3 rounded-xl border border-orange-200">
@@ -255,7 +265,7 @@ const DashboardPage: React.FC = () => {
               <span className="text-xs font-black text-orange-600">Exp: {formatDate(e.expiryDate!)}</span>
             </div>
           ))}
-          {data.expenses.length === 0 && <p className="text-[10px] text-orange-400 italic">Aucune charge fixe enregistrée</p>}
+          {data.expenses.filter(e => e.expiryDate).length === 0 && <p className="text-[10px] text-orange-400 italic">Aucune charge fixe enregistrée</p>}
         </div>
       </div>
     </div>
@@ -352,6 +362,7 @@ const SettingsPage: React.FC = () => {
 const MainContent: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'maintenance' | 'settings'>('dashboard');
   const [showRevenueForm, setShowRevenueForm] = useState(false);
+  const [showExpenseForm, setShowExpenseForm] = useState(false);
   const { isTrialExpired, daysRemaining, showWarning, activateLicense, canEnterCode } = useLicense();
   const [activationCode, setActivationCode] = useState('');
   const [showAdmin, setShowAdmin] = useState(false);
@@ -376,7 +387,7 @@ const MainContent: React.FC = () => {
           </div>
         )}
 
-        {activeTab === 'dashboard' && <DashboardPage />}
+        {activeTab === 'dashboard' && <DashboardPage onAddExpense={() => setShowExpenseForm(true)} />}
         {activeTab === 'maintenance' && <MaintenancePage />}
         {activeTab === 'settings' && <SettingsPage />}
       </div>
@@ -388,6 +399,17 @@ const MainContent: React.FC = () => {
               <X size={24} className="text-slate-900" />
             </button>
             <RevenueForm onSuccess={() => { setShowRevenueForm(false); window.location.reload(); }} />
+          </div>
+        </div>
+      )}
+
+      {showExpenseForm && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm p-4 flex items-end">
+          <div className="w-full max-w-md mx-auto animate-in slide-in-from-bottom duration-300">
+            <button onClick={() => setShowExpenseForm(false)} className="absolute -top-12 right-0 bg-white p-2 rounded-full shadow-lg">
+              <X size={24} className="text-slate-900" />
+            </button>
+            <ExpenseForm onSuccess={() => { setShowExpenseForm(false); window.location.reload(); }} />
           </div>
         </div>
       )}
