@@ -1,10 +1,15 @@
 import React, { useState } from 'react';
 import { db } from '../db/database';
-import { DollarSign, Fuel, Navigation, Calendar } from 'lucide-react';
+import { DollarSign, Fuel, Navigation, Calendar, ArrowLeft } from 'lucide-react';
+
+interface RevenueFormProps {
+  onSuccess: () => void;
+  onCancel: () => void;
+}
 
 const FUEL_TYPES = ['Essence', 'Gasoil', 'Gasoil 50', 'GPL', 'Electrique'];
 
-const RevenueForm = ({ onSuccess }: { onSuccess: () => void }) => {
+const RevenueForm = ({ onSuccess, onCancel }: RevenueFormProps) => {
   const [formData, setFormData] = useState({
     date: new Date().toISOString().split('T')[0],
     shift: 'Journée' as any,
@@ -43,7 +48,7 @@ const RevenueForm = ({ onSuccess }: { onSuccess: () => void }) => {
   const net = Number(formData.grossAmount || 0) - Number(formData.fuelCost || 0) - Number(formData.otherExpenses || 0);
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 p-4 bg-white rounded-xl shadow-lg border border-slate-100">
+    <form onSubmit={handleSubmit} className="space-y-4 p-4 bg-white rounded-xl shadow-lg border border-slate-100 max-h-[90vh] overflow-y-auto">
       <div className="flex justify-between items-center mb-2">
         <h3 className="text-lg font-black text-slate-800">Recette du Jour</h3>
         <div className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold">
@@ -107,9 +112,21 @@ const RevenueForm = ({ onSuccess }: { onSuccess: () => void }) => {
         </div>
       </div>
 
-      <button type="submit" className="w-full py-4 bg-slate-900 text-white font-black rounded-2xl shadow-xl active:scale-95 transition-all">
-        ENREGISTRER LA JOURNÉE
-      </button>
+      <div className="flex gap-3 pt-2">
+        <button 
+          type="button" 
+          onClick={onCancel}
+          className="flex-1 py-4 bg-slate-100 text-slate-500 font-black rounded-2xl active:scale-95 transition-all flex items-center justify-center gap-2"
+        >
+          <ArrowLeft size={18} /> RETOUR
+        </button>
+        <button 
+          type="submit" 
+          className="flex-[2] py-4 bg-slate-900 text-white font-black rounded-2xl shadow-xl active:scale-95 transition-all"
+        >
+          ENREGISTRER
+        </button>
+      </div>
     </form>
   );
 };
