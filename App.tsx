@@ -34,6 +34,7 @@ const LoginScreen: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
     phone: '',
     plate: '',
     pin: '',
+    fuelType: 'Essence', // Valeur par défaut
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -71,16 +72,38 @@ const LoginScreen: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
             ))}
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <input placeholder="Prénom" required className="w-full p-3.5 bg-slate-50 border-none rounded-2xl text-sm text-slate-900 placeholder:text-slate-400" value={formData.firstName} onChange={e => setFormData({ ...formData, firstName: e.target.value })} />
-            <input placeholder="Nom" required className="w-full p-3.5 bg-slate-50 border-none rounded-2xl text-sm text-slate-900 placeholder:text-slate-400" value={formData.lastName} onChange={e => setFormData({ ...formData, lastName: e.target.value })} />
+          <div className="space-y-1">
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Motorisation du véhicule</label>
+            <select 
+              required 
+              className="w-full p-3.5 bg-slate-50 border-none rounded-2xl text-sm text-slate-900 font-bold focus:ring-2 focus:ring-yellow-400 outline-none appearance-none"
+              value={formData.fuelType}
+              onChange={e => setFormData({ ...formData, fuelType: e.target.value })}
+            >
+              <optgroup label="Mono-carburant">
+                <option value="Essence">Essence</option>
+                <option value="Gasoil">Gasoil</option>
+                <option value="Gasoil 50">Gasoil 50</option>
+                <option value="GPL">GPL</option>
+                <option value="Electrique">Électrique</option>
+              </optgroup>
+              <optgroup label="Hybride">
+                <option value="Essence + GPL">Hybride (Essence, GPL)</option>
+                <option value="Essence + Electrique">Hybride (Essence, Électrique)</option>
+              </optgroup>
+            </select>
           </div>
 
-          <input placeholder="Téléphone" type="tel" required className="w-full p-3.5 bg-slate-50 border-none rounded-2xl text-sm text-slate-900 placeholder:text-slate-400" value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} />
-          <input placeholder="Matricule (ex: 123 TU 4567)" pattern="^(\d{1,3} TU \d{1,5}|[Aa]dmin)$" required className="w-full p-3.5 bg-slate-50 border-none rounded-2xl text-sm font-mono uppercase text-slate-900 placeholder:text-slate-400" value={formData.plate} onChange={e => setFormData({ ...formData, plate: e.target.value })} />
+          <div className="grid grid-cols-2 gap-3">
+            <input placeholder="Prénom" required className="w-full p-3.5 bg-slate-50 border-none rounded-2xl text-sm text-slate-900 placeholder:text-slate-400 font-medium" value={formData.firstName} onChange={e => setFormData({ ...formData, firstName: e.target.value })} />
+            <input placeholder="Nom" required className="w-full p-3.5 bg-slate-50 border-none rounded-2xl text-sm text-slate-900 placeholder:text-slate-400 font-medium" value={formData.lastName} onChange={e => setFormData({ ...formData, lastName: e.target.value })} />
+          </div>
+
+          <input placeholder="Téléphone" type="tel" required className="w-full p-3.5 bg-slate-50 border-none rounded-2xl text-sm text-slate-900 placeholder:text-slate-400 font-medium" value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} />
+          <input placeholder="Matricule (ex: 123 TU 4567)" pattern="^(\d{1,3} TU \d{1,5}|[Aa]dmin)$" required className="w-full p-3.5 bg-slate-50 border-none rounded-2xl text-sm font-mono uppercase text-slate-900 placeholder:text-slate-400 font-bold" value={formData.plate} onChange={e => setFormData({ ...formData, plate: e.target.value })} />
           <input placeholder="PIN (4 chiffres)" type="password" maxLength={4} pattern="^\d{4}$" required className="w-full p-3.5 bg-slate-50 border-none rounded-2xl text-center text-xl font-black tracking-widest text-slate-900 placeholder:text-slate-400" value={formData.pin} onChange={e => setFormData({ ...formData, pin: e.target.value })} />
 
-          <button type="submit" className="w-full py-4.5 bg-slate-900 text-white font-black rounded-[1.5rem] shadow-xl hover:opacity-90 active:scale-95 transition-all">
+          <button type="submit" className="w-full py-4.5 bg-slate-900 text-white font-black rounded-[1.5rem] shadow-xl hover:opacity-90 active:scale-95 transition-all mt-4">
             ACTIVER L'ESSAI 30J
           </button>
         </form>
