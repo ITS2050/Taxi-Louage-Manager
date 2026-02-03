@@ -1,5 +1,4 @@
-
-import Dexie, { type Table } from 'dexie';
+import { Dexie, type Table } from 'dexie';
 
 export interface UserProfile {
   id?: number;
@@ -55,8 +54,11 @@ export class AppDatabase extends Dexie {
 
   constructor() {
     super('TaxiLouageManagerDB');
-    // Définition du schéma de la base de données avec la méthode version() héritée de Dexie
-    this.version(3).stores({ // Incrément de version pour le nouveau champ
+    
+    // Fix: Defining the schema inside the constructor is the recommended pattern for Dexie with TypeScript.
+    // This ensures that the version() method from the base Dexie class is correctly prioritized 
+    // and available for configuration during instance initialization.
+    this.version(3).stores({
       userProfile: '++id',
       revenue: '++id, date',
       maintenance: '++id, date, mileage',
