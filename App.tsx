@@ -22,7 +22,9 @@ import {
   History,
   Receipt,
   PiggyBank,
-  Target
+  Target,
+  ShieldAlert,
+  PhoneCall
 } from 'lucide-react';
 import { formatCurrency, formatDate } from './utils/format';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
@@ -414,20 +416,53 @@ const MainContent: React.FC = () => {
   const [showAdmin, setShowAdmin] = useState(false);
   const [adminClicks, setAdminClicks] = useState(0);
 
+  // Déterminer le style de l'alerte en fonction de l'urgence
+  const alertStyles = useMemo(() => {
+    if (isTrialExpired) return "from-red-600 to-red-700";
+    if (daysRemaining <= 2) return "from-orange-600 to-red-600";
+    return "from-slate-900 to-slate-800";
+  }, [isTrialExpired, daysRemaining]);
+
   return (
     <div className="min-h-screen bg-slate-50 pb-32">
       <div className="max-w-md mx-auto p-6 space-y-6">
         {showWarning && (
-          <div className={`p-4 rounded-3xl flex items-center gap-4 shadow-xl animate-in slide-in-from-top ${isTrialExpired ? 'bg-red-600' : 'bg-slate-900'} text-white`}>
-            <AlertCircle className="flex-shrink-0" />
-            <div className="flex-1 text-xs">
-              <p className="font-black uppercase tracking-tighter">{isTrialExpired ? 'Session Expirée' : `Fin d'essai dans ${daysRemaining}j`}</p>
-              <p className="opacity-70">Appelez le 55897000 pour activer.</p>
+          <div className={`p-5 rounded-[2rem] flex flex-col gap-4 shadow-2xl animate-in slide-in-from-top bg-gradient-to-br ${alertStyles} text-white relative overflow-hidden`}>
+            {/* Décoration arrière-plan */}
+            <ShieldAlert size={120} className="absolute -right-6 -bottom-6 opacity-10 rotate-12" />
+            
+            <div className="flex items-center gap-4 relative z-10">
+              <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
+                <AlertCircle className="text-white" size={24} />
+              </div>
+              <div className="flex-1">
+                <h4 className="font-black text-sm uppercase tracking-tight">
+                  {isTrialExpired ? 'Session Expirée' : `Fin d'essai dans ${daysRemaining} jour${daysRemaining > 1 ? 's' : ''}`}
+                </h4>
+                <p className="text-[11px] font-bold opacity-80 flex items-center gap-1">
+                  <PhoneCall size={12} /> Appelez le 55 897 000 pour activer
+                </p>
+              </div>
             </div>
+
             {canEnterCode && (
-              <div className="flex gap-1.5">
-                <input type="text" maxLength={8} placeholder="Code" className="w-16 p-2 rounded-xl bg-white/10 text-xs text-center border border-white/20 uppercase text-white" value={activationCode} onChange={e => setActivationCode(e.target.value)} />
-                <button onClick={async () => (await activateLicense(activationCode)) ? alert('Activé !') : alert('Code invalide')} className="bg-yellow-400 text-slate-900 px-3 py-2 rounded-xl text-[10px] font-black uppercase">Activer</button>
+              <div className="flex gap-2 relative z-10">
+                <div className="flex-1 relative">
+                  <input 
+                    type="text" 
+                    maxLength={8} 
+                    placeholder="Code d'activation" 
+                    className="w-full p-4 rounded-2xl bg-white/10 text-sm font-black text-center border border-white/20 uppercase text-white placeholder:text-white/40 focus:bg-white/20 outline-none transition-all" 
+                    value={activationCode} 
+                    onChange={e => setActivationCode(e.target.value)} 
+                  />
+                </div>
+                <button 
+                  onClick={async () => (await activateLicense(activationCode)) ? alert('Licence activée avec succès !') : alert('Code incorrect')} 
+                  className="bg-yellow-400 text-slate-900 px-6 py-4 rounded-2xl text-xs font-black uppercase shadow-lg active:scale-95 transition-all"
+                >
+                  Valider
+                </button>
               </div>
             )}
           </div>
