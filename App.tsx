@@ -439,8 +439,8 @@ const MainContent: React.FC = () => {
                 <h4 className="font-black text-sm uppercase tracking-tight">
                   {isTrialExpired ? 'Session Expirée' : `Fin d'essai dans ${daysRemaining} jour${daysRemaining > 1 ? 's' : ''}`}
                 </h4>
-                <p className="text-[11px] font-bold opacity-80 flex items-center gap-1">
-                  <PhoneCall size={12} /> Appelez le 55 897 000 pour activer
+                <p className="text-[11px] font-bold opacity-80 flex items-center gap-1 leading-relaxed">
+                  <PhoneCall size={12} className="flex-shrink-0" /> Appelez sur Whatsapp 99 606 484 ou 55 897 000.
                 </p>
               </div>
             </div>
