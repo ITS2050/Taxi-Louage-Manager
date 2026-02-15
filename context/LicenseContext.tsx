@@ -50,12 +50,17 @@ export const LicenseProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const activateLicense = async (code: string): Promise<boolean> => {
     if (!user) return false;
     
+    // On vérifie les 4 durées possibles
     const code30 = getLicenseCode(user.plate, 30);
     const code90 = getLicenseCode(user.plate, 90);
+    const code180 = getLicenseCode(user.plate, 180);
+    const code365 = getLicenseCode(user.plate, 365);
 
     let extraTime = 0;
     if (code === code30) extraTime = 30;
     else if (code === code90) extraTime = 90;
+    else if (code === code180) extraTime = 180;
+    else if (code === code365) extraTime = 365;
 
     if (extraTime > 0) {
       const newExpiry = Math.max(now, user.licenseExpiryDate) + (extraTime * 24 * 60 * 60 * 1000);
