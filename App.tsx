@@ -20,7 +20,9 @@ import {
   X,
   CreditCard,
   History,
-  Receipt
+  Receipt,
+  PiggyBank,
+  Target
 } from 'lucide-react';
 import { formatCurrency, formatDate } from './utils/format';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
@@ -176,7 +178,6 @@ const DashboardPage: React.FC<{ onAddExpense: () => void }> = ({ onAddExpense })
     const totalDriverShare = data.revenue.reduce((acc, curr) => acc + (curr.driverShare || 0), 0);
     const totalOtherRevExpenses = data.revenue.reduce((acc, curr) => acc + curr.otherExpenses, 0);
     
-    // Nouvelles déductions pour un net réel
     const totalMaintenance = data.maintenance.reduce((acc, curr) => acc + curr.price, 0);
     const totalFixedExpenses = data.expenses.reduce((acc, curr) => acc + curr.amount, 0);
 
@@ -186,10 +187,24 @@ const DashboardPage: React.FC<{ onAddExpense: () => void }> = ({ onAddExpense })
       ? data.revenue.reduce((acc, curr) => acc + (curr.fuelAmount / ((curr.mileageEnd - curr.mileageStart) || 1) * 100), 0) / data.revenue.length
       : 0;
 
+    // Calcul de l'épargne journalière nécessaire
+    const dailySavingTarget = data.expenses.reduce((acc, exp) => {
+      let daily = 0;
+      switch (exp.frequency) {
+        case 'Quotidien': daily = exp.amount; break;
+        case 'Hebdomadaire': daily = exp.amount / 7; break;
+        case 'Mensuel': daily = exp.amount / 30; break;
+        case 'Trimestriel': daily = exp.amount / 90; break;
+        case 'Annuel': daily = exp.amount / 365; break;
+      }
+      return acc + daily;
+    }, 0);
+
     return {
       net: netReel,
       brut: totalBrut,
-      cons: avgCons
+      cons: avgCons,
+      dailySavingTarget
     };
   }, [data]);
 
@@ -216,6 +231,7 @@ const DashboardPage: React.FC<{ onAddExpense: () => void }> = ({ onAddExpense })
       </div>
 
       <div className="grid grid-cols-1 gap-4">
+        {/* Carte de Recette Nette */}
         <div className="bg-slate-900 p-6 rounded-[2rem] text-white shadow-2xl relative overflow-hidden group">
           <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform">
             <CreditCard size={120} />
@@ -232,7 +248,27 @@ const DashboardPage: React.FC<{ onAddExpense: () => void }> = ({ onAddExpense })
               <span className="text-[10px] font-black">Moy: {stats.cons.toFixed(1)} L/100</span>
             </div>
           </div>
-          <p className="text-[9px] text-slate-500 mt-2 font-bold uppercase tracking-wider italic">* Déduit : Carburant, Chauffeur, Entretien et Charges fixes</p>
+        </div>
+
+        {/* NOUVELLE CARTE : Epargne Journalière */}
+        <div className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm relative overflow-hidden flex items-center gap-4">
+          <div className="w-14 h-14 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 flex-shrink-0">
+            <PiggyBank size={32} />
+          </div>
+          <div className="flex-1">
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Épargne Journalière Cible</p>
+            <div className="flex items-baseline gap-2">
+              <span className="text-2xl font-black text-slate-900">{formatCurrency(stats.dailySavingTarget)}</span>
+              <span className="text-[10px] font-bold text-slate-400 italic">/ jour</span>
+            </div>
+            <p className="text-[9px] text-indigo-500 font-bold mt-1">Pour couvrir {data.expenses.length} charges fixes</p>
+          </div>
+          <button 
+            onClick={onAddExpense}
+            className="p-3 bg-slate-50 text-slate-400 rounded-2xl hover:bg-indigo-50 hover:text-indigo-600 transition-colors"
+          >
+            <SettingsIcon size={20} />
+          </button>
         </div>
       </div>
 
