@@ -12,7 +12,7 @@ export const formatDate = (date: string | Date): string => {
   }).format(new Date(date));
 };
 
-export const getLicenseCode = (plate: string, durationDays: 30 | 90): string => {
+export const getLicenseCode = (plate: string, durationDays: number): string => {
   const salt = "TUNISIE_TAXI_LOUAGE_SECRET_2025";
   const input = plate.replace(/\s+/g, '').toUpperCase() + salt + durationDays;
   let hash = 0;
