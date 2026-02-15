@@ -24,11 +24,21 @@ import {
   PiggyBank,
   Target,
   ShieldAlert,
-  PhoneCall
+  PhoneCall,
+  Download,
+  Upload,
+  Info
 } from 'lucide-react';
 import { formatCurrency, formatDate } from './utils/format';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import QRCode from 'react-qr-code';
+
+const APP_VERSION = "1.2.0";
+const CHANGELOG = [
+  { v: "1.2.0", changes: ["Système de sauvegarde export/import", "Gestion des mises à jour en ligne", "Journal des nouveautés"] },
+  { v: "1.1.0", changes: ["Calcul de l'épargne journalière", "Amélioration des alertes licence"] },
+  { v: "1.0.0", changes: ["Lancement initial", "Gestion recettes et entretien"] }
+];
 
 // --- AUTH COMPONENTS ---
 
@@ -189,7 +199,6 @@ const DashboardPage: React.FC<{ onAddExpense: () => void }> = ({ onAddExpense })
       ? data.revenue.reduce((acc, curr) => acc + (curr.fuelAmount / ((curr.mileageEnd - curr.mileageStart) || 1) * 100), 0) / data.revenue.length
       : 0;
 
-    // Calcul de l'épargne journalière nécessaire
     const dailySavingTarget = data.expenses.reduce((acc, exp) => {
       let daily = 0;
       switch (exp.frequency) {
@@ -233,7 +242,6 @@ const DashboardPage: React.FC<{ onAddExpense: () => void }> = ({ onAddExpense })
       </div>
 
       <div className="grid grid-cols-1 gap-4">
-        {/* Carte de Recette Nette */}
         <div className="bg-slate-900 p-6 rounded-[2rem] text-white shadow-2xl relative overflow-hidden group">
           <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform">
             <CreditCard size={120} />
@@ -252,7 +260,6 @@ const DashboardPage: React.FC<{ onAddExpense: () => void }> = ({ onAddExpense })
           </div>
         </div>
 
-        {/* NOUVELLE CARTE : Epargne Journalière */}
         <div className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm relative overflow-hidden flex items-center gap-4">
           <div className="w-14 h-14 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 flex-shrink-0">
             <PiggyBank size={32} />
@@ -366,10 +373,62 @@ const MaintenancePage: React.FC = () => {
 const SettingsPage: React.FC = () => {
   const { user } = useLicense();
   const [showQR, setShowQR] = useState(false);
+  const [showChangelog, setShowChangelog] = useState(false);
+
+  const exportData = async () => {
+    const backup = {
+      profile: await db.userProfile.toArray(),
+      revenue: await db.revenue.toArray(),
+      maintenance: await db.maintenance.toArray(),
+      expenses: await db.expenses.toArray(),
+      exportedAt: new Date().toISOString(),
+      version: APP_VERSION
+    };
+    const blob = new Blob([JSON.stringify(backup)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `backup_taxi_manager_${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+  };
+
+  const importData = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      try {
+        const data = JSON.parse(event.target?.result as string);
+        if (confirm("Attention : l'importation écrasera vos données actuelles. Continuer ?")) {
+          await db.userProfile.clear();
+          await db.revenue.clear();
+          await db.maintenance.clear();
+          await db.expenses.clear();
+          
+          if (data.profile) await db.userProfile.bulkAdd(data.profile);
+          if (data.revenue) await db.revenue.bulkAdd(data.revenue);
+          if (data.maintenance) await db.maintenance.bulkAdd(data.maintenance);
+          if (data.expenses) await db.expenses.bulkAdd(data.expenses);
+          
+          alert("Données importées avec succès ! L'application va redémarrer.");
+          window.location.reload();
+        }
+      } catch (err) {
+        alert("Fichier de sauvegarde invalide.");
+      }
+    };
+    reader.readAsText(file);
+  };
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-black text-slate-900 tracking-tighter italic">Réglages</h1>
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-black text-slate-900 tracking-tighter italic">Réglages</h1>
+        <button onClick={() => setShowChangelog(true)} className="p-2 bg-slate-900 text-white rounded-full">
+           <Info size={18} />
+        </button>
+      </div>
+
       <div className="bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden">
         <div className="p-6 bg-slate-50 flex items-center gap-4">
           <div className="w-16 h-16 bg-slate-900 rounded-2xl flex items-center justify-center text-white font-black text-2xl uppercase">{user?.firstName?.[0]}</div>
@@ -378,6 +437,7 @@ const SettingsPage: React.FC = () => {
             <p className="text-slate-400 font-mono text-sm tracking-tighter">{user?.plate}</p>
           </div>
         </div>
+        
         <div className="divide-y divide-slate-50">
           <button onClick={() => { if(navigator.share) navigator.share({title: 'Taxi Manager', url: window.location.href}); }} className="w-full p-5 flex items-center justify-between hover:bg-slate-50 text-slate-700">
             <div className="flex items-center gap-4">
@@ -386,6 +446,7 @@ const SettingsPage: React.FC = () => {
             </div>
             <ChevronRight size={18} className="text-slate-300" />
           </button>
+          
           <button onClick={() => setShowQR(!showQR)} className="w-full p-5 flex items-center justify-between hover:bg-slate-50 text-slate-700">
             <div className="flex items-center gap-4">
               <Smartphone size={20} className="text-indigo-600" />
@@ -393,12 +454,55 @@ const SettingsPage: React.FC = () => {
             </div>
             <ChevronRight size={18} className="text-slate-300" />
           </button>
+
+          <div className="p-5 space-y-3">
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Sécurité des données</p>
+            <div className="grid grid-cols-2 gap-3">
+              <button onClick={exportData} className="flex items-center justify-center gap-2 p-3 bg-green-50 text-green-700 rounded-xl font-bold text-xs">
+                <Download size={16} /> Exporter
+              </button>
+              <label className="flex items-center justify-center gap-2 p-3 bg-blue-50 text-blue-700 rounded-xl font-bold text-xs cursor-pointer">
+                <Upload size={16} /> Importer
+                <input type="file" className="hidden" accept=".json" onChange={importData} />
+              </label>
+            </div>
+          </div>
         </div>
       </div>
+
       {showQR && (
         <div className="bg-white p-8 rounded-[2rem] border shadow-2xl flex flex-col items-center animate-in zoom-in">
           <QRCode value={window.location.href} size={180} />
           <p className="mt-4 text-[10px] text-slate-400 font-black uppercase text-center">Scannez pour installer</p>
+        </div>
+      )}
+
+      {showChangelog && (
+        <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-md flex items-center justify-center p-6">
+          <div className="bg-white w-full max-w-sm rounded-[2.5rem] overflow-hidden">
+            <div className="p-6 bg-slate-900 text-white flex justify-between items-center">
+              <h3 className="font-black text-xl italic tracking-tighter">Nouveautés v{APP_VERSION}</h3>
+              <button onClick={() => setShowChangelog(false)}><X /></button>
+            </div>
+            <div className="p-6 max-h-[60vh] overflow-y-auto space-y-6">
+              {CHANGELOG.map(log => (
+                <div key={log.v} className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <span className="bg-yellow-400 text-slate-900 text-[10px] font-black px-2 py-0.5 rounded-full">v{log.v}</span>
+                    <div className="h-[1px] flex-1 bg-slate-100" />
+                  </div>
+                  <ul className="space-y-1.5">
+                    {log.changes.map((c, i) => (
+                      <li key={i} className="text-sm text-slate-600 flex items-start gap-2">
+                        <div className="w-1 h-1 rounded-full bg-blue-500 mt-2" />
+                        {c}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       )}
     </div>
@@ -416,7 +520,6 @@ const MainContent: React.FC = () => {
   const [showAdmin, setShowAdmin] = useState(false);
   const [adminClicks, setAdminClicks] = useState(0);
 
-  // Déterminer le style de l'alerte en fonction de l'urgence
   const alertStyles = useMemo(() => {
     if (isTrialExpired) return "from-red-600 to-red-700";
     if (daysRemaining <= 2) return "from-orange-600 to-red-600";
@@ -428,7 +531,6 @@ const MainContent: React.FC = () => {
       <div className="max-w-md mx-auto p-6 space-y-6">
         {showWarning && (
           <div className={`p-5 rounded-[2rem] flex flex-col gap-4 shadow-2xl animate-in slide-in-from-top bg-gradient-to-br ${alertStyles} text-white relative overflow-hidden`}>
-            {/* Décoration arrière-plan */}
             <ShieldAlert size={120} className="absolute -right-6 -bottom-6 opacity-10 rotate-12" />
             
             <div className="flex items-center gap-4 relative z-10">
@@ -522,7 +624,7 @@ const MainContent: React.FC = () => {
 
       <footer className="text-center text-slate-300 text-[10px] font-black uppercase tracking-widest pb-12 mt-8">
         <button onClick={() => { setAdminClicks(c => c + 1); if(adminClicks >= 4) { setShowAdmin(true); setAdminClicks(0); } }} className="hover:opacity-100 opacity-30 transition-opacity">
-          © 2025 v1.1.0-TUNISIA
+          © 2025 v{APP_VERSION}-TUNISIA
         </button>
       </footer>
 
