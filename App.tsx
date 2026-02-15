@@ -27,17 +27,19 @@ import {
   PhoneCall,
   Download,
   Upload,
-  Info
+  Info,
+  Apple,
+  Chrome
 } from 'lucide-react';
 import { formatCurrency, formatDate } from './utils/format';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import QRCode from 'react-qr-code';
 
-const APP_VERSION = "1.2.0";
+const APP_VERSION = "1.2.1";
 const CHANGELOG = [
+  { v: "1.2.1", changes: ["Guide d'installation PWA intégré", "Optimisation du bouton d'installation mobile"] },
   { v: "1.2.0", changes: ["Système de sauvegarde export/import", "Gestion des mises à jour en ligne", "Journal des nouveautés"] },
-  { v: "1.1.0", changes: ["Calcul de l'épargne journalière", "Amélioration des alertes licence"] },
-  { v: "1.0.0", changes: ["Lancement initial", "Gestion recettes et entretien"] }
+  { v: "1.1.0", changes: ["Calcul de l'épargne journalière", "Amélioration des alertes licence"] }
 ];
 
 // --- AUTH COMPONENTS ---
@@ -374,6 +376,21 @@ const SettingsPage: React.FC = () => {
   const { user } = useLicense();
   const [showQR, setShowQR] = useState(false);
   const [showChangelog, setShowChangelog] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+
+  useEffect(() => {
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    });
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') setDeferredPrompt(null);
+  };
 
   const exportData = async () => {
     const backup = {
@@ -465,6 +482,39 @@ const SettingsPage: React.FC = () => {
                 <Upload size={16} /> Importer
                 <input type="file" className="hidden" accept=".json" onChange={importData} />
               </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm space-y-4">
+        <h3 className="font-black text-slate-900 text-sm uppercase tracking-widest flex items-center gap-2">
+          <Download size={16} className="text-blue-600" /> Guide d'installation
+        </h3>
+        
+        {deferredPrompt && (
+          <button onClick={handleInstallClick} className="w-full py-4 bg-blue-600 text-white rounded-2xl font-black text-sm shadow-xl shadow-blue-600/20 active:scale-95 transition-all">
+            INSTALLER MAINTENANT
+          </button>
+        )}
+
+        <div className="grid grid-cols-1 gap-3">
+          <div className="bg-slate-50 p-4 rounded-2xl flex items-center gap-4">
+            <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-slate-900 shadow-sm">
+              <Apple size={20} />
+            </div>
+            <div className="flex-1">
+              <p className="text-xs font-black text-slate-800">iPhone / Safari</p>
+              <p className="text-[10px] text-slate-500 font-medium">Bouton Partager <ArrowUpRight className="inline" size={12} /> puis "Sur l'écran d'accueil"</p>
+            </div>
+          </div>
+          <div className="bg-slate-50 p-4 rounded-2xl flex items-center gap-4">
+            <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-slate-900 shadow-sm">
+              <Chrome size={20} />
+            </div>
+            <div className="flex-1">
+              <p className="text-xs font-black text-slate-800">Android / Chrome</p>
+              <p className="text-[10px] text-slate-500 font-medium">Menu (3 points) puis "Installer l'application"</p>
             </div>
           </div>
         </div>
