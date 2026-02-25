@@ -1,16 +1,10 @@
-/* Les directives @tailwind sont gérées par le script CDN dans index.html pour garantir la compatibilité */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 @layer base {
   body {
-    background-color: #f8fafc;
-    color: #0f172a;
-    -webkit-tap-highlight-color: transparent;
-    overflow-x: hidden;
+    @apply bg-slate-50 text-slate-900 antialiased;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
-}
-
-/* Scrollbar masquée pour une expérience plus "app native" */
-::-webkit-scrollbar {
-  width: 0px;
-  background: transparent;
 }
