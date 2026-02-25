@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { LicenseProvider, useLicense } from './context/LicenseContext';
 import { db, type RevenueRecord, type ExpenseRecord, type MaintenanceRecord } from './db/database';
 import MaintenanceForm from './components/MaintenanceForm';
+import MaintenanceDashboard from './components/MaintenanceDashboard';
 import RevenueForm from './components/RevenueForm';
 import ExpenseForm from './components/ExpenseForm';
 import AdminModal from './components/AdminModal';
@@ -32,6 +33,7 @@ import {
   Chrome
 } from 'lucide-react';
 import { formatCurrency, formatDate } from './utils/format';
+import { MAINTENANCE_SYSTEMS, MaintenanceSystem } from './constants/maintenance';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import QRCode from 'react-qr-code';
 
@@ -298,8 +300,8 @@ const DashboardPage: React.FC<{ onAddExpense: () => void }> = ({ onAddExpense })
               <YAxis hide domain={[0, 'auto']} />
               <Tooltip contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }} />
               <Line type="monotone" dataKey="val" stroke="#0f172a" strokeWidth={4} dot={(props: any) => {
-                const { cx, cy, value } = props;
-                return <circle cx={cx} cy={cy} r={4} fill={value > 10 ? "#ef4444" : "#0f172a"} strokeWidth={0} />;
+                const { cx, cy, value, index } = props;
+                return <circle key={`dot-${index}`} cx={cx} cy={cy} r={4} fill={value > 10 ? "#ef4444" : "#0f172a"} strokeWidth={0} />;
               }} />
             </LineChart>
           </ResponsiveContainer>
@@ -332,6 +334,7 @@ const DashboardPage: React.FC<{ onAddExpense: () => void }> = ({ onAddExpense })
 const MaintenancePage: React.FC = () => {
   const [records, setRecords] = useState<any[]>([]);
   const [showForm, setShowForm] = useState(false);
+  const [view, setView] = useState<'dashboard' | 'history'>('dashboard');
 
   const load = useCallback(async () => {
     const items = await db.maintenance.orderBy('date').reverse().toArray();
@@ -349,25 +352,59 @@ const MaintenancePage: React.FC = () => {
         </button>
       </div>
 
-      {showForm && <MaintenanceForm onSuccess={() => { setShowForm(false); load(); }} />}
-
-      <div className="space-y-3">
-        {records.map(rec => (
-          <div key={rec.id} className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm flex items-center gap-4">
-            <div className="w-14 h-14 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-300">
-              {rec.photo ? <img src={URL.createObjectURL(rec.photo)} className="w-full h-full object-cover rounded-2xl" /> : <Wrench size={24} />}
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest">{rec.category}</p>
-              <h4 className="font-black text-slate-900 truncate">{rec.item}</h4>
-              <p className="text-xs text-slate-400 font-medium">{formatDate(rec.date)} • {rec.mileage} Km</p>
-            </div>
-            <div className="text-right">
-              <p className="font-black text-slate-900">{formatCurrency(rec.price)}</p>
-            </div>
+      {showForm ? (
+        <MaintenanceForm onSuccess={() => { setShowForm(false); load(); }} />
+      ) : (
+        <>
+          <div className="flex bg-slate-100 p-1.5 rounded-2xl">
+            <button 
+              onClick={() => setView('dashboard')} 
+              className={`flex-1 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-wider transition-all ${view === 'dashboard' ? 'bg-white shadow-md text-slate-900' : 'text-slate-400'}`}
+            >
+              État & Alertes
+            </button>
+            <button 
+              onClick={() => setView('history')} 
+              className={`flex-1 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-wider transition-all ${view === 'history' ? 'bg-white shadow-md text-slate-900' : 'text-slate-400'}`}
+            >
+              Historique
+            </button>
           </div>
-        ))}
-      </div>
+
+          {view === 'dashboard' ? (
+            <MaintenanceDashboard />
+          ) : (
+            <div className="space-y-3">
+              {records.length === 0 && (
+                <div className="p-12 text-center text-slate-300 font-bold italic">Aucun historique</div>
+              )}
+              {records.map(rec => {
+                const system = MAINTENANCE_SYSTEMS.find((s: MaintenanceSystem) => s.id === rec.systemId);
+                const SystemIcon = system?.icon || Wrench;
+                return (
+                  <div key={rec.id} className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm flex items-center gap-4">
+                    <div className="w-14 h-14 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-300 overflow-hidden">
+                      {rec.photo ? (
+                        <img src={URL.createObjectURL(rec.photo)} className="w-full h-full object-cover" />
+                      ) : (
+                        <SystemIcon size={24} className="text-slate-400" />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest">{system?.label || 'Autre'}</p>
+                      <h4 className="font-black text-slate-900 truncate">{rec.subSystem}</h4>
+                      <p className="text-xs text-slate-400 font-medium">{formatDate(rec.date)} • {rec.mileage.toLocaleString()} Km</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-black text-slate-900">{formatCurrency(rec.price)}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 };
@@ -569,6 +606,20 @@ const MainContent: React.FC = () => {
   const [activationCode, setActivationCode] = useState('');
   const [showAdmin, setShowAdmin] = useState(false);
   const [adminClicks, setAdminClicks] = useState(0);
+  const [hasMaintenanceAlert, setHasMaintenanceAlert] = useState(false);
+
+  useEffect(() => {
+    const checkMaintenance = async () => {
+      const tasks = await db.maintenanceTasks.toArray();
+      const lastRevenue = await db.revenue.orderBy('date').reverse().first();
+      if (lastRevenue) {
+        const currentMileage = lastRevenue.mileageEnd;
+        const hasAlert = tasks.some(t => t.nextMaintenanceMileage - currentMileage < 500);
+        setHasMaintenanceAlert(hasAlert);
+      }
+    };
+    checkMaintenance();
+  }, []);
 
   const alertStyles = useMemo(() => {
     if (isTrialExpired) return "from-red-600 to-red-700";
@@ -662,8 +713,9 @@ const MainContent: React.FC = () => {
           <LayoutDashboard size={24} strokeWidth={activeTab === 'dashboard' ? 3 : 2} />
           <span className="text-[10px] font-black uppercase tracking-tighter">Accueil</span>
         </button>
-        <button onClick={() => setActiveTab('maintenance')} className={`flex flex-col items-center gap-1 ${activeTab === 'maintenance' ? 'text-slate-900' : 'text-slate-300'}`}>
+        <button onClick={() => setActiveTab('maintenance')} className={`flex flex-col items-center gap-1 relative ${activeTab === 'maintenance' ? 'text-slate-900' : 'text-slate-300'}`}>
           <Wrench size={24} strokeWidth={activeTab === 'maintenance' ? 3 : 2} />
+          {hasMaintenanceAlert && <div className="absolute -top-1 -right-1 w-3 h-3 bg-rose-500 border-2 border-white rounded-full animate-pulse" />}
           <span className="text-[10px] font-black uppercase tracking-tighter">Entretien</span>
         </button>
         <button onClick={() => setActiveTab('settings')} className={`flex flex-col items-center gap-1 ${activeTab === 'settings' ? 'text-slate-900' : 'text-slate-300'}`}>
