@@ -1,69 +1,73 @@
-
-import { Dexie, type Table } from 'dexie';
+import Dexie, { Table } from 'dexie';
 
 export interface UserProfile {
   id?: number;
-  type: 'Taxi' | 'Louage';
   firstName: string;
   lastName: string;
-  phone: string;
   plate: string;
+  type: string;
   pin: string;
-  fuelType: string;
-  trialStartDate: number;
-  licenseExpiryDate: number;
+  licenseKey?: string;
+  trialStartDate: string;
 }
 
 export interface RevenueRecord {
   id?: number;
   date: string;
-  shift: 'Matin' | 'Soir' | 'Journée';
-  grossAmount: number;
-  fuelAmount: number;
-  fuelCost: number;
-  fuelType: string[];
-  driverShare: number; // Nouveau: Part prélevée par/pour le chauffeur
-  otherExpenses: number;
   mileageStart: number;
   mileageEnd: number;
+  totalRevenue: number;
+  fuelAmount: number;
+  expenses: number;
+  notes?: string;
 }
 
 export interface MaintenanceRecord {
   id?: number;
   date: string;
   mileage: number;
-  category: string;
-  item: string;
+  systemId: string;
+  subSystem: string;
   brand: string;
   price: number;
   photo?: Blob;
+  notes?: string;
+}
+
+export interface MaintenanceTask {
+  id?: number;
+  systemId: string;
+  subSystem: string;
+  intervalKm: number;
+  lastMaintenanceMileage: number;
+  nextMaintenanceMileage: number;
+  isActive: boolean;
 }
 
 export interface ExpenseRecord {
   id?: number;
-  type: 'Fixe' | 'Variable';
-  category: 'Assurance' | 'Vignette' | 'Taxe' | 'Loyer' | 'Parking' | 'Lavage' | 'Autre';
+  category: string;
+  type: string;
   amount: number;
-  frequency: 'Quotidien' | 'Hebdomadaire' | 'Mensuel' | 'Trimestriel' | 'Annuel';
   expiryDate?: string;
+  frequency: 'Quotidien' | 'Hebdomadaire' | 'Mensuel' | 'Trimestriel' | 'Annuel';
 }
 
 export class AppDatabase extends Dexie {
   userProfile!: Table<UserProfile>;
   revenue!: Table<RevenueRecord>;
   maintenance!: Table<MaintenanceRecord>;
+  maintenanceTasks!: Table<MaintenanceTask>;
   expenses!: Table<ExpenseRecord>;
 
   constructor() {
     super('TaxiLouageManagerDB');
     
-    // Fix: Explicitly cast 'this' to 'Dexie' to ensure the TypeScript compiler correctly 
-    // identifies the 'version' method from the Dexie base class, resolving the error where 
-    // 'version' was not recognized on the AppDatabase type.
-    (this as Dexie).version(4).stores({
+    (this as Dexie).version(5).stores({
       userProfile: '++id',
       revenue: '++id, date',
-      maintenance: '++id, date, mileage',
+      maintenance: '++id, date, mileage, systemId',
+      maintenanceTasks: '++id, systemId, subSystem',
       expenses: '++id, category, type, expiryDate'
     });
   }
